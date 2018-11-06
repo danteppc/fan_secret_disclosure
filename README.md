@@ -3,7 +3,9 @@ Our implementation of the secret disclosure attack against Fan et al authenticat
 https://link.springer.com/article/10.1007/s12083-017-0553-9
 
 Results:
+
 FAN Protocol Init
+
 Secret Nr = 01111110100101110011001010100011
 Secret Nt = 01111000011111011010110001000010
 Secret K = 00100001000111101111101101110110
