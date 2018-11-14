@@ -1,0 +1,109 @@
+const XOR: Function;
+secret k; // shared
+usertype Timestamp;
+macro M1 = XOR(Tij,Nt);
+macro M2 =  {(Tij, Sij, Nt)}k;
+macro Tijp1 = {Tij}k;
+macro Sijp1 = {Sij}Tijp1;
+macro M4 =  {Sijp1}XOR(Nt,Nr);
+
+protocol fan(tag, reader, cloud) {
+
+	role tag {
+
+		fresh Nt: Nonce;
+
+		fresh Tij: Timestamp;
+	
+		secret Sij;
+
+		fresh Nr: Nonce;
+
+		recv_1(reader, tag, Nr);
+
+		send_2(tag, reader, {(Tij)}k, M1, M2);
+
+		claim(tag, Secret,  {(Tij)}k);
+		claim(tag, Secret,  M1);
+		claim(tag, Secret,  M2);
+
+		recv_7(reader,tag, M4);
+
+		claim(tag, Secret, M4);
+
+	};
+
+	role reader {
+
+		fresh Nr: Nonce;
+
+		send_1(reader, tag, Nr);
+
+		var Tij: Timestamp;
+
+		var Nt: Nonce;
+
+		secret Sij;
+
+		recv_2(tag, reader, {(Tij)}k, M1, M2);
+
+		claim(reader, Secret,  {(Tij)}k);
+		claim(reader, Secret,  M1);
+		claim(reader, Secret,  M2);
+
+		send_3(reader, cloud, {Tij}k);
+
+		claim(reader, Secret,  {Tij}k);
+
+		var Nc: Nonce;
+
+		recv_4(cloud, reader, {Sij}Tij, Nc);
+
+		claim(reader, Secret, {Sij}Tij);
+
+		send_5(reader, cloud, {{Tij}k}Nc, {Tijp1}k, {Sijp1}Tijp1);
+
+		claim(reader, Secret, {{Tij}k}Nc);
+		claim(reader, Secret,  {Tijp1}k);
+		claim(reader, Secret,  {Sijp1}Tijp1);
+
+		recv_6(cloud, reader, cloud);
+
+		send_7(reader,tag, M4);
+
+		claim(reader, Secret, M4);
+
+	};
+
+	role cloud {
+
+		// lookup
+
+		var Tij: Timestamp;
+
+		recv_3(reader, cloud, {Tij}k);
+
+		claim(cloud, Secret,  {Tij}k);
+
+		fresh Nc: Nonce;
+
+		secret Sij;
+
+		send_4(cloud, reader, {Sij}Tij, Nc);
+
+		claim(cloud, Secret, {Sij}Tij);
+
+		var Tijp1: Timestamp;
+		secret Sijp1;
+
+		recv_5(reader, cloud, {{Tij}k}Nc, {Tijp1}k, {Sijp1}Tijp1);
+
+		claim(cloud, Secret, {{Tij}k}Nc);
+		claim(cloud, Secret,  {Tijp1}k);
+		claim(cloud, Secret,  {Sijp1}Tijp1);
+
+		send_6(cloud, reader, cloud);
+
+	};
+
+};
